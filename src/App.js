@@ -17,8 +17,8 @@ function App() {
 						}}
 					/>
 					<Employee name="honey" role="intern" />
-					<Employee role={role}/>
-					<Employee />
+					<Employee name="rocky" role={role}/>
+					<Employee name="bunny" />
 				</>
 			) : (
 				<p>you cannot see the employees</p>
