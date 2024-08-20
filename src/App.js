@@ -7,7 +7,9 @@ import EditEmployee from "./components/EditEmployee";
 import Header from "./components/Header";
 import Employees from "./pages/Employees";
 import { BrowserRouter,Routes,Route } from "react-router-dom";
-import Dictionary from "./components/Dictionary";
+import Dictionary from "./pages/Dictionary";
+import Definition from "./pages/Definition";
+import NotFound from "./components/NotFound";
 
 function App() {
 	return (
@@ -15,7 +17,9 @@ function App() {
 			<Header>	
 				<Routes>
 					<Route path="/employees" element={<Employees/>}/>
-					<Route path="/dictionary" element={<Dictionary/>}/>
+					<Route path="/dictionary/:search" element={<Definition/>}/>
+ 					<Route path="/dictionary" element={<Dictionary/>}/>
+ 					<Route path="/404" element={<NotFound/>}/>
 				</Routes>
 			</Header>
 		</BrowserRouter>
