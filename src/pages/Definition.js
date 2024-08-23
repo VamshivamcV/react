@@ -13,18 +13,15 @@ export default function Definition() {
     
 
 	useEffect(() => {
-        // const url = 'https://httpstat.us/500'
-        // const url = 'https:uytftfyuyfugiyufu.com'
         const url = "http://api.dictionaryapi.dev/api/v2/entries/en/" + search
 		fetch(url)
 			.then((response) => {
-				// console.log(response.status);
                 if (response.status === 404) {
 					setNotFound(true);
 				} else if(response.status === 401){
                     navigate('/login')
                 } else if(response.status === 500){
-                     setError(true)
+                    setError(true)
                 } 
 
                 if (!response.ok){
