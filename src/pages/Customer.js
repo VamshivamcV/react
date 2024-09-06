@@ -1,7 +1,8 @@
-import { Link, useParams, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { Link, useParams, useNavigate, useLocation } from "react-router-dom";
+import { useState, useEffect, useContext } from "react";
 import NotFound from "../components/NotFound";
 import { baseUrl } from "../shared";
+import { LoginContext } from "../App";
 
 export default function Customer() {
 	const { id } = useParams();
@@ -11,6 +12,8 @@ export default function Customer() {
 	const [tempCustomer, setTempCustomer] = useState();
 	const [changed, setChanged] = useState(false);
     const [error, setError] = useState();
+	const location = useLocation();
+	const [loggedIn, setLoggedIn] = useContext(LoginContext);
 
 	useEffect(() => {
 		if (!customerr) return;
@@ -23,10 +26,23 @@ export default function Customer() {
 
 	useEffect(() => {
 		const url = baseUrl + "/api/customers/" + id;
-		fetch(url)
+		fetch(url, {
+			method : 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization : 'Bearer ' + localStorage.getItem('access')
+			}
+		})
 			.then((response) => {
 				if (response.status === 404) {
 					setNotFound(true);
+				} else if (response.status === 401) {
+					setLoggedIn(false);
+					navigate('/login', {
+						state: {
+							previousUrl: location.pathname,
+						},
+					});
 				}
 
                 if (!response.ok){
@@ -56,11 +72,19 @@ export default function Customer() {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
+				Authorization : 'Bearer ' + localStorage.getItem('access')
 			},
 			body: JSON.stringify(tempCustomer),
 		})
 			.then((response) => {
-                console.log('response', response);
+				if (response.status === 401) {
+					setLoggedIn(false);
+					navigate('/login', {
+						state: {
+							previousUrl: location.pathname,
+						},
+					});
+				}
                 if (!response.ok) throw new Error('somthing went wrong');
 				return response.json();
 			})
@@ -161,9 +185,20 @@ export default function Customer() {
 							const url = baseUrl + "api/customers/" + id;
 							fetch(url, {
 								method: "DELETE",
-								headers: { "Content-type": "application/json" },
+								headers: { 
+									"Content-type": "application/json",
+									Authorization : 'Bearer ' + localStorage.getItem('access') 
+								},
 							})
 								.then((response) => {
+									if (response.status === 401) {
+										setLoggedIn(false);
+										navigate('/login', {
+											state: {
+												previousUrl: location.pathname,
+											},
+										});
+									}
 									if (!response.ok) {
 										throw new Error("Something went wrong");
 									}

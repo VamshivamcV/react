@@ -1,12 +1,21 @@
-import { useEffect, useState } from "react";
-import {Link} from "react-router-dom";
+import { useEffect, useState, useContext } from "react";
+import {Link, useNavigate, useLocation} from "react-router-dom";
 import { baseUrl } from "../shared";
 import AddCustomer from "../components/AddCustomer";
+import { LoginContext } from "../App";
 
 export default function Customers() {
+
+	const [loggedIn, setLoggedIn] = useContext(LoginContext);
+
 	const [customers, setCustomers] = useState();
 
 	const [show, setShow] = useState(false);
+
+	const navigate = useNavigate();
+
+	const location = useLocation();
+
 
 	function toggleShow(){
 		setShow(!show);
@@ -14,13 +23,28 @@ export default function Customers() {
 
 
 	useEffect(() => {
-		// console.log("Featching...");
-		fetch(baseUrl +"/api/customers/" )
-			.then((response) => response.json())
+		const url = baseUrl + 'api/customers/';
+		fetch(url, {
+			method : 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization : 'Bearer ' + localStorage.getItem('access')
+			}
+		})
+			.then((response) => {
+				if(response.status === 401){
+					setLoggedIn(false);
+					navigate('/login', {
+						state: {
+							previousUrl: location.pathname,
+						}
+					});
+				}
+				return response.json();
+			})
 			.then((data) => {
-				// console.log(data, data.customers[0].name);
 				setCustomers(data.customers);
-			});
+            });																																																			
 	}, []);
 
 	function newCustomer(name, industry){
@@ -29,11 +53,19 @@ export default function Customers() {
 		fetch(url, {
 			method: 'POST',
 			headers: {
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
+				Authorization : 'Bearer ' + localStorage.getItem('access')
 			},
 			body: JSON.stringify(data)
 		})
 		.then((response)=>{
+			if (response.status === 401) {
+				navigate('/login', {
+					state: {
+						previousUrl: location.pathname,
+					},
+				});
+			}
 			if(!response.ok){
 				throw new Error('something went wrong');
 			}
@@ -41,11 +73,8 @@ export default function Customers() {
 		})
 		.then((data) => {
 			toggleShow();
-			console.log(data);
-			console.log([...customers]);
 			setCustomers([...customers, data.customer]);
-		})
-		.catch((e) => console.log(e));
+		});
 	}
 
 	return (
@@ -72,6 +101,7 @@ export default function Customers() {
 				newCustomer={newCustomer} 
 				show = {show}
 				toggleShow = {toggleShow}/>
+
 		</>
 	);
 }

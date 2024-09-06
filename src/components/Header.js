@@ -1,3 +1,4 @@
+import { useContext, useEffect } from "react";
 import {
 	Disclosure,
 	DisclosureButton,
@@ -9,12 +10,12 @@ import {
 } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { NavLink } from "react-router-dom";
+import { LoginContext } from "../App";
 
 const navigation = [
 	{ name: "Employees", href: "/Employees" },
 	{ name: "Customers", href: "/Customers" },
 	{ name: "Dictionary", href: "/Dictionary" },
-	{ name: "Calendar", href: "/others" },
 ];
 
 function classNames(...classes) {
@@ -22,6 +23,8 @@ function classNames(...classes) {
 }
 
 export default function Header(props) {
+	const [loggedIn, setLoggedIn] = useContext(LoginContext);
+
 	return (
 		<>
 			<Disclosure as="nav" className="bg-gray-800">
@@ -67,7 +70,25 @@ export default function Header(props) {
 										>
 											{item.name}
 										</NavLink>
-									))}
+										))}
+										{loggedIn ? (
+										<NavLink
+											to={"/login"}
+											onClick={() => {
+												setLoggedIn(false);
+												localStorage.clear();
+											}}
+											className="block rounded-md px-3 py-2 text-base font-medium no-underline text-gray-300 hover:bg-gray-700 hover:text-white"
+										>
+											Logout
+										</NavLink>)
+										: (
+										<NavLink
+											to={"/login"}
+											className="block rounded-md px-3 py-2 text-base font-medium no-underline text-gray-300 hover:bg-gray-700 hover:text-white"
+										>
+											Login
+										</NavLink>)}
 								</div>
 							</div>
 						</div>
@@ -91,25 +112,45 @@ export default function Header(props) {
 								key={item.name}
 								to={item.href}
 								className={({ isActive }) => {
-									return (
-										"block rounded-md px-3 py-2 text-base font-medium no-underline " +
-										(isActive
-											? "bg-gray-900 text-white"
-											: "text-gray-300 hover:bg-gray-700 hover:text-white")
-									);
-								}}
+												return (
+													"block rounded-md px-3 py-2 text-sm font-medium no-underline " +
+													(isActive
+														? "bg-gray-900 text-white"
+														: "text-gray-300 hover:bg-gray-700 hover:text-white")
+												);
+											}}
 							>
 								{item.name}
 							</NavLink>
 						))}
+
+						{loggedIn ? (
+						<NavLink
+											to={"/login"}
+											onClick={() => {
+												setLoggedIn(false);
+												localStorage.clear();
+											}
+											}
+											className="block rounded-md px-3 py-2 text-base font-medium no-underline text-gray-300 hover:bg-gray-700 hover:text-white"
+										>
+											Logout
+					    </NavLink>)
+						: (
+						<NavLink
+											to={"/login"}
+											className="block rounded-md px-3 py-2 text-base font-medium no-underline text-gray-300 hover:bg-gray-700 hover:text-white"
+										>
+											Login
+					    </NavLink>)}
 					</div>
 				</DisclosurePanel>
 			</Disclosure>
-      <div className="bg-gray-300">
-        <div className="max-w-7xl mx-auto min-h-screen px-3 py-2">
-          {props.children}
-        </div>
-      </div>
+			<div className="bg-gray-300">
+				<div className="max-w-7xl mx-auto min-h-screen px-3 py-2">
+					{props.children}
+				</div>
+			</div>
 		</>
 	);
 }

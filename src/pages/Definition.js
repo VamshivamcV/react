@@ -1,66 +1,59 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, Link, useLocation } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import NotFound from "../components/NotFound";
 import DefinitionSearch from "../components/DefinationSearch";
+import useFetch from "../hooks/UseFetch";
 
 export default function Definition() {
-	const [word, setWord] = useState();
-	const [notFound, setNotFound] = useState(false);
-	let { search } = useParams();
+	// const [word, setWord] = useState();
+	// const [notFound, setNotFound] = useState(false);
+    // const [error, setError] = useState(false);
 	const navigate = useNavigate();
-    const [error, setError] = useState(false);
+	const location = useLocation();
+	let { search } = useParams();
+
+	const [word, errorStatus] = useFetch("http://api.dictionaryapi.dev/api/v2/entries/en/" + search);
     
 
-	useEffect(() => {
-        const url = "http://api.dictionaryapi.dev/api/v2/entries/en/" + search
-		fetch(url)
-			.then((response) => {
-                if (response.status === 404) {
-					setNotFound(true);
-				} else if(response.status === 401){
-                    navigate('/login')
-                } else if(response.status === 500){
-                    setError(true)
-                } 
-
-                if (!response.ok){
-                    setError(true);
-
-                    throw new Error('something went wrong');
-                }
-				return response.json();
-			})
-			.then((data) => {
-				setWord(data[0].meanings);
-			}).catch((e)=>{
-                console.log(e.message);
-            });
-	}, []);
-
-	if (notFound === true) {
+	if (errorStatus === 404) {
 		return (
 			<>
 				<NotFound />
-				<Link to="/dictionary">Search Another</Link>
+				<Link 
+					to="/dictionary"
+				>
+					<button 
+					className="bg-purple-400 hover:bg-purple-700 text-white font-bold py-1 px-2 rounded"
+					>
+					Search Another
+					</button>
+				</Link>
 			</>
 		);
 	}
-    if (error === true) {
+    if (errorStatus) {
 		return (
 			<>
 				<p>Something went wrong, please try again?</p>
-				<Link to="/dictionary">Search Another</Link>
+				<Link 
+					to="/dictionary"
+				>
+					<button 
+					className="bg-purple-400 hover:bg-purple-700 text-white font-bold py-1 px-2 rounded"
+					>
+					Search Another
+					</button>
+				</Link>
 			</>
 		);
 	}
-
 	return (
 		<>
-			{word ? (
+			{word?.[0]?.meanings ? (
 				<>
 					<h1>Here is a definition: </h1>
-					{word.map((meaning) => {
+					{word[0].meanings.map((meaning) => {
 						return (
 							<p key={uuidv4()}>
 								{meaning.partOfSpeech + ": "}
