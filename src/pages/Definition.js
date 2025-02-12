@@ -13,7 +13,7 @@ export default function Definition() {
 	const location = useLocation();
 	let { search } = useParams();
 
-	const [word, errorStatus] = useFetch("http://api.dictionaryapi.dev/api/v2/entries/en/" + search);
+	const [word, errorStatus] = useFetch("https://api.dictionaryapi.dev/api/v2/entries/en/" + search);
     
 
 	if (errorStatus === 404) {

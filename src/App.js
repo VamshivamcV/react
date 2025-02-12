@@ -61,7 +61,7 @@ function App() {
 			<BrowserRouter>
 				<Header>	
 					<Routes>
-						<Route path="/" element={<Login/>}/>
+						<Route path="/" element={<Employees/>}/>
 						<Route path="/employees" element={<Employees/>}/>
 						<Route path="/dictionary/:search" element={<Definition/>}/>
 						<Route path="/dictionary" element={<Dictionary/>}/>
